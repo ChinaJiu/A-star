@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>A*寻路</title>
+</head>
+<style type="text/css">
+	body,html,ul,li{
+		margin: 0; padding: 0;
+	}	
+	#ul{	
+		border-left: 1px solid black;
+		border-top: 1px solid black;
+		margin: 0 auto;
+		overflow: hidden;
+	}
+	#ul>li{
+		position: relative;
+		list-style: none;
+		border-right: 1px solid black;
+		border-bottom: 1px solid black;
+		float: left;	
+	}
+	.sty1{ background-color: red; }
+	.sty2{ background-color: blue; }
+	.sty3{ background-color: green; }
+	input{ display: block; margin: 50 auto;}
+</style>
+<body>
+	<ul id="ul">
+		
+	</ul> 
+
+	<input type="button" onclick="clickBtn()" value="开始寻路">
+</body>
+	<script type="text/javascript">
+		var map = [
+			0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			2,2,0,0,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,2,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,
+			1,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,2,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,
+			0,0,0,2,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0,
+			0,0,0,2,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0,
+			0,0,0,2,0,0,0,0,2,0,2,0,2,0,0,0,0,0,0,0,
+			0,0,0,2,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0,
+			0,0,0,2,0,0,2,0,0,2,2,0,2,0,2,2,2,0,0,0,
+			0,0,0,2,2,2,0,0,2,0,2,0,2,2,2,0,2,2,2,2,
+			0,0,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0,0,0,
+			2,2,2,2,2,2,0,0,0,0,2,2,2,2,2,2,2,2,0,2,
+			0,0,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3
+		]
+		var star = {
+			'ul': document.getElementById('ul'),
+			'li': {
+				'width': 19,
+				'height': 19
+			},
+			'openArry': [],
+			'closeArry': []
+		}
+		init();	
+
+		function init(){
+			createGrid();
+			star.beginLi = document.getElementsByClassName('sty1')[0];
+			star.endLi = document.getElementsByClassName('sty3')[0];
+			star.lis = document.getElementsByTagName('li');
+		}
+
+		function clickBtn() {
+			openFn();			
+		}
+		function openFn() {
+			
+			var nowLi = star.openArry.shift()
+			if( nowLi == star.endLi ) {
+				console.log(star.openArry,star.closeArry);
+				showLine()
+				return
+			}
+			closeFn(nowLi)
+			findLi(nowLi)
+			star.openArry.sort(function(li1, li2) {
+				return li1.num - li2.num;
+			})
+			openFn();
+		}
+		function findLi(nowLi) {
+			var result = [];
+			for(var i = 0; i < star.lis.length; i++ ) {
+				if( filter(star.lis[i]) ) {
+					result.push( star.lis[i] )
+				}
+			}
+			
+			for(var i = 0 ; i < result.length; i++ ) {
+				if(  (Math.abs(nowLi.offsetLeft - result[i].offsetLeft) <= star.li.width+1  ) &&
+					 (Math.abs(nowLi.offsetTop - result[i].offsetTop) <= star.li.height+1  ) ) {
+						result[i].num = f(result[i])
+						result[i].parent = nowLi;
+						star.openArry.push(result[i]);
+				}
+			}
+		}
+		function filter(li){
+			for(var i = 0 ; i < star.closeArry.length; i++ ) {
+				if( li == star.closeArry[i] ){
+					return false;
+				}
+			}
+			for(var i = 0 ; i < star.openArry.length; i++ ) {
+				if( li == star.openArry[i] ){
+					return false;
+				}
+			}
+			
+			return true;
+		}
+		function closeFn(nowLi) {
+			star.closeArry.push(nowLi);
+		}
+
+		function showLine() {
+			var result = []
+			var isNow = 0;
+			var last = star.closeArry.pop();
+
+			function findP(li){
+				result.unshift(li)
+				if( li.parent == star.beginLi ) {
+					return;
+				}
+				findP(li.parent)
+			}
+			findP(last)
+
+			var stop = setInterval(function() {			
+				result[isNow].style.background = 'red';
+				isNow++;
+				if( isNow == result.length ){
+					console.log(22);
+					clearInterval(stop)
+				}
+			},300)
+		}
+		function createGrid() {
+			for (var i = 0; i < map.length; i++) {
+				var li = document.createElement('li');
+				li.style.width = star.li.width + 'px';
+				li.style.height = star.li.height + 'px';
+				star.ul.appendChild(li);				
+				star.ul.style.width = Math.sqrt(map.length) * (star.li.width + 1 ) + 1 + 'px';
+				if( map[i] == 1 ){
+					li.className = 'sty1'
+					star.openArry.push(li);
+				}else if( map[i] == 2 ){
+					li.className = 'sty2'
+					star.closeArry.push(li);
+				}else if( map[i] == 3 ){
+					li.className = 'sty3'
+				}
+			}
+		}
+
+
+		function f(nodeLi) {
+			return g(nodeLi) + h(nodeLi)
+		}
+		function g(nodeLi) {
+			var x = nodeLi.offsetLeft - star.beginLi.offsetLeft;
+			var y = nodeLi.offsetTop - star.beginLi.offsetTop;
+			return Math.sqrt( x * x + y * y )
+		}
+		function h(nodeLi) {
+			var x = nodeLi.offsetLeft - star.endLi.offsetLeft;
+			var y = nodeLi.offsetTop - star.endLi.offsetTop;
+			return Math.sqrt( x * x + y * y )
+		}
+
+
+		
+	</script>
+</html>
