@@ -80,8 +80,7 @@
 
 		function openFn() {
 			var nowLi = star.openArry.shift() //获取数组中第一个li
-			if( nowLi == star.endLi ) {
-				console.log(star.openArry,star.closeArry);
+			if( nowLi == star.endLi ) {			
 				showLine()
 				return
 			}
@@ -140,7 +139,7 @@
 				findP(li.parent)
 			}
 			findP(last)
-
+			console.log(result);
 			var stop = setInterval(function() {			
 				result[isNow].style.background = 'red';
 				isNow++;
