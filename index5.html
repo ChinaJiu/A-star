@@ -23,14 +23,14 @@
 	.sty1{ background-color: red; }
 	.sty2{ background-color: blue; }
 	.sty3{ background-color: green; }
-	input{ display: block; margin: 50 auto;}
+	input{  display: block; margin: 50px auto;}
 </style>
 <body>
 	<ul id="ul">
 		
 	</ul> 
-
 	<input type="button" onclick="clickBtn()" value="开始寻路">
+
 </body>
 	<script type="text/javascript">
 		var map = [
@@ -64,32 +64,33 @@
 			'openArry': [],
 			'closeArry': []
 		}
-		init();	
+		init();	//初始化
 
 		function init(){
+			//创建表格
 			createGrid();
-			star.beginLi = document.getElementsByClassName('sty1')[0];
-			star.endLi = document.getElementsByClassName('sty3')[0];
-			star.lis = document.getElementsByTagName('li');
+			star.beginLi = document.getElementsByClassName('sty1')[0];	//起点
+			star.endLi = document.getElementsByClassName('sty3')[0];  //终点
+			star.lis = document.getElementsByTagName('li');	//ul>li
 		}
 
 		function clickBtn() {
 			openFn();			
 		}
+
 		function openFn() {
-			
-			var nowLi = star.openArry.shift()
+			var nowLi = star.openArry.shift() //获取数组中第一个li
 			if( nowLi == star.endLi ) {
 				console.log(star.openArry,star.closeArry);
 				showLine()
 				return
 			}
-			closeFn(nowLi)
-			findLi(nowLi)
-			star.openArry.sort(function(li1, li2) {
+			closeFn(nowLi)  //将openArray中的li添加到closeArray中
+			findLi(nowLi) //过滤查询过的li  添加到openArray中
+			star.openArry.sort(function(li1, li2) { //openArray中的li进行升序排序
 				return li1.num - li2.num;
 			})
-			openFn();
+			openFn();  //进行递归查询
 		}
 		function findLi(nowLi) {
 			var result = [];
@@ -102,9 +103,9 @@
 			for(var i = 0 ; i < result.length; i++ ) {
 				if(  (Math.abs(nowLi.offsetLeft - result[i].offsetLeft) <= star.li.width+1  ) &&
 					 (Math.abs(nowLi.offsetTop - result[i].offsetTop) <= star.li.height+1  ) ) {
-						result[i].num = f(result[i])
-						result[i].parent = nowLi;
-						star.openArry.push(result[i]);
+						result[i].num = f(result[i])  //通过 f() = g() + h() 计算出每个li到起点和终点的最短距离 赋值给即将添加到openArray中的li，以便升序
+						result[i].parent = nowLi;  //给每个li挂载一个其本身的父节点 以便从终点li一路记录到起点li
+						star.openArry.push(result[i]); //将过滤后的li 添加到openArray中
 				}
 			}
 		}
